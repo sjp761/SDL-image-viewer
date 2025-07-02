@@ -13,5 +13,6 @@ class SdlWidget : public QWidget
         SDL_Texture *texture;
         void updateRenderer(SDL_Surface* surface);
         void updateRenderer(SDL_Texture* texture);
+        SdlWidget(QWidget *parent = nullptr);
 
 };
