@@ -14,14 +14,9 @@ void SdlWidget::updateRenderer(SDL_Surface* surface)
         texture = nullptr;
         std::cout << "Texture destroyed." << std::endl;
     }
-    if (surface != nullptr) 
-    {
-        texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
-    }
-
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
+    update();
+    
 }
 
 SdlWidget::SdlWidget(QWidget *parent)
@@ -70,10 +65,9 @@ void SdlWidget::paintEvent(QPaintEvent* event)
 {
     QWidget::paintEvent(event);
     std::cout << "Paint event triggered." << std::endl;
-    if (!startup && renderer && surface) // Check if startup is false and both renderer and surface are valid
-    {
-        updateRenderer(surface); // Ensure the renderer is updated with the current surface
-    }
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    SDL_RenderPresent(renderer); // Present the renderer
 }
 
 

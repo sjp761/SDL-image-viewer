@@ -28,7 +28,7 @@ void MainWindow::openFile()
     sdlWidget->startup = false; // Set startup to false to indicate that the widget is no longer in the startup phase
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), "", tr("Images (*.png *.xpm *.jpg *.bmp)"));
     sdlWidget->surface = sdlWidget->loadImage(fileName.toStdString());
-    sdlWidget->update();
+    sdlWidget->updateRenderer(sdlWidget->surface); // Update the renderer with the new surface
     MainWindow::setWindowTitle(fileName); // Set the window title to the file name
 }
 
