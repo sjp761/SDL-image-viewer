@@ -4,13 +4,25 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 
+
+
 void SdlWidget::updateRenderer(SDL_Surface* surface)
 {
     if (!renderer || !surface) return;
-    texture = SDL_CreateTextureFromSurface(renderer, surface);
-    update();
-}
+    if (texture) {
+        SDL_DestroyTexture(texture);
+        texture = nullptr;
+        std::cout << "Texture destroyed." << std::endl;
+    }
+    if (surface != nullptr) 
+    {
+        texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_RenderPresent(renderer);
+    }
 
+}
 
 SdlWidget::SdlWidget(QWidget *parent)
     :QWidget(parent),
@@ -49,7 +61,6 @@ void SdlWidget::showEvent(QShowEvent* event) //Initializes stuff before widget i
             std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << std::endl;
             return;
         }
-        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF); //Set default draw color to white
         SDL_RenderClear(renderer);
         SDL_RenderPresent(renderer); // Present the initial draw
     }
@@ -58,10 +69,10 @@ void SdlWidget::showEvent(QShowEvent* event) //Initializes stuff before widget i
 void SdlWidget::paintEvent(QPaintEvent* event)
 {
     QWidget::paintEvent(event);
-    if (renderer) {
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
+    std::cout << "Paint event triggered." << std::endl;
+    if (!startup && renderer && surface) // Check if startup is false and both renderer and surface are valid
+    {
+        updateRenderer(surface); // Ensure the renderer is updated with the current surface
     }
 }
 

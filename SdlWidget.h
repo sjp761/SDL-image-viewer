@@ -10,6 +10,7 @@ class SdlWidget : public QWidget
     public:
         SDL_Renderer *renderer;
         SDL_Window *window;
+        bool startup = true;
         SDL_Texture *texture;
         SDL_Surface *surface;
         void updateRenderer(SDL_Surface* surface);
