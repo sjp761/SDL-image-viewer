@@ -18,5 +18,4 @@ MainWindow::~MainWindow()
 void MainWindow::openFile()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), "", tr("Images (*.png *.xpm *.jpg *.bmp)"));
-    QMessageBox::information(this, tr("File Selected"), fileName.isEmpty() ? tr("No file selected") : tr("Selected file: %1").arg(fileName));
 }
