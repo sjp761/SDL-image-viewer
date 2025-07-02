@@ -1,5 +1,8 @@
 #include "SdlWidget.h"
 #include <iostream>
+#include <QWindow>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 
 void SdlWidget::updateRenderer(SDL_Surface* surface)
 {
@@ -20,28 +23,28 @@ SdlWidget::SdlWidget(QWidget *parent)
      window(nullptr),
      texture(nullptr)
 {
-    if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
-    {
-        std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
-        return;
-    }
-    window = SDL_CreateWindow("SDL Image Viewer",
-                              SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED,
-                              800, 600,
-                              SDL_WINDOW_SHOWN);
-    if( window == nullptr )
-    {
-        std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-        return;
-    }
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if( renderer == nullptr )
-    {
-        std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-        return;
+    if (!window) {
+        window = SDL_CreateWindowFrom(reinterpret_cast<void*>(winId()));
+        if (!window) {
+            std::cerr << "SDL_CreateWindowFrom failed: " << SDL_GetError() << std::endl;
+            return;
+        }
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+        if (!renderer) {
+            std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << std::endl;
+            return;
+        }
     }
     SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
+}
+
+SDL_Surface* SdlWidget::loadImage(const std::string& imagePath)
+{
+    SDL_Surface* surface = SDL_LoadBMP(imagePath.c_str());
+    if (!surface) {
+        std::cerr << "SDL_LoadBMP failed: " << SDL_GetError() << std::endl;
+    }
+    return surface;
 }

@@ -14,5 +14,5 @@ class SdlWidget : public QWidget
         void updateRenderer(SDL_Surface* surface);
         void updateRenderer(SDL_Texture* texture);
         SdlWidget(QWidget *parent = nullptr);
-
+        SDL_Surface* loadImage(const std::string& imagePath);
 };
