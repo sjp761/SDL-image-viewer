@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "SdlWidget.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QWindow>
@@ -9,6 +10,11 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    
+    // Create and set the SDL widget as the central widget
+    SdlWidget* sdlWidget = new SdlWidget(this);
+    setCentralWidget(sdlWidget);
+    
     connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::openFile);
 }
 

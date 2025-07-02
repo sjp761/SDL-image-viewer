@@ -6,17 +6,9 @@
 
 void SdlWidget::updateRenderer(SDL_Surface* surface)
 {
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    updateRenderer(texture);
-}
-
-
-void SdlWidget::updateRenderer(SDL_Texture *texture)
-{
-    if (!renderer || !texture) return;
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
-    update(); // trigger paintEvent
+    if (!renderer || !surface) return;
+    texture = SDL_CreateTextureFromSurface(renderer, surface);
+    update();
 }
 
 
@@ -26,6 +18,21 @@ SdlWidget::SdlWidget(QWidget *parent)
      window(nullptr),
      texture(nullptr)
 {
+    setAttribute(Qt::WA_OpaquePaintEvent);
+    setAttribute(Qt::WA_NoSystemBackground);
+}
+
+SdlWidget::~SdlWidget()
+{
+    if (texture) {
+        SDL_DestroyTexture(texture);
+    }
+    if (renderer) {
+        SDL_DestroyRenderer(renderer);
+    }
+    if (window) {
+        SDL_DestroyWindow(window);
+    }
 }
 
 void SdlWidget::showEvent(QShowEvent* event) //Initializes stuff before widget is shown, will not work if called during the constructor
@@ -52,6 +59,8 @@ void SdlWidget::paintEvent(QPaintEvent* event)
 {
     QWidget::paintEvent(event);
     if (renderer) {
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
     }
 }
