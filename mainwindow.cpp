@@ -21,14 +21,8 @@ void MainWindow::openFile()
 {
     SdlWidget* sdlWidget = qobject_cast<SdlWidget*>(centralWidget());
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), "", tr("Images (*.png *.xpm *.jpg *.bmp)"));
-    SDL_Surface* surface = sdlWidget->loadImage(fileName.toStdString());
-    if (!surface) {
-        QMessageBox::critical(this, tr("Error"), tr("Could not load image: %1").arg(SDL_GetError()));
-        return;
-    }
-    sdlWidget->updateRenderer(surface);
-    SDL_FreeSurface(surface);
-    sdlWidget->update();
-    std::cout << "Image loaded and renderer updated." << std::endl;
+    sdlWidget->surface = sdlWidget->loadImage(fileName.toStdString());
+    sdlWidget->updateRenderer(sdlWidget->surface);
+    MainWindow::setWindowTitle(fileName); // Set the window title to the file name
 }
 

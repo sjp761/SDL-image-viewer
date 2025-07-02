@@ -10,12 +10,15 @@ void SdlWidget::updateRenderer(SDL_Surface* surface)
     updateRenderer(texture);
 }
 
+
 void SdlWidget::updateRenderer(SDL_Texture *texture)
 {
+    if (!renderer || !texture) return;
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
-    SDL_RenderPresent(renderer);
+    update(); // trigger paintEvent
 }
+
 
 SdlWidget::SdlWidget(QWidget *parent)
     :QWidget(parent),
@@ -23,22 +26,36 @@ SdlWidget::SdlWidget(QWidget *parent)
      window(nullptr),
      texture(nullptr)
 {
+}
+
+void SdlWidget::showEvent(QShowEvent* event) //Initializes stuff before widget is shown, will not work if called during the constructor
+{
+    QWidget::showEvent(event);
     if (!window) {
         window = SDL_CreateWindowFrom(reinterpret_cast<void*>(winId()));
         if (!window) {
             std::cerr << "SDL_CreateWindowFrom failed: " << SDL_GetError() << std::endl;
             return;
         }
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         if (!renderer) {
             std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << std::endl;
             return;
         }
+        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF); //Set default draw color to white
+        SDL_RenderClear(renderer);
+        SDL_RenderPresent(renderer); // Present the initial draw
     }
-    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-    SDL_RenderClear(renderer);
-    SDL_RenderPresent(renderer);
 }
+
+void SdlWidget::paintEvent(QPaintEvent* event)
+{
+    QWidget::paintEvent(event);
+    if (renderer) {
+        SDL_RenderPresent(renderer);
+    }
+}
+
 
 SDL_Surface* SdlWidget::loadImage(const std::string& imagePath)
 {
