@@ -17,6 +17,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void openFile();
+    void convertImage();
     Ui::MainWindow *getUi() const { return ui; }
 
 private:

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <QWindow>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_syswm.h>
 
 
@@ -64,7 +65,6 @@ void SdlWidget::showEvent(QShowEvent* event) //Initializes stuff before widget i
 void SdlWidget::paintEvent(QPaintEvent* event)
 {
     QWidget::paintEvent(event);
-    std::cout << "Paint event triggered." << std::endl;
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer); // Present the renderer
@@ -73,9 +73,9 @@ void SdlWidget::paintEvent(QPaintEvent* event)
 
 SDL_Surface* SdlWidget::loadImage(const std::string& imagePath)
 {
-    SDL_Surface* surface = SDL_LoadBMP(imagePath.c_str());
+    SDL_Surface* surface = IMG_Load(imagePath.c_str());
     if (!surface) {
-        std::cerr << "SDL_LoadBMP failed: " << SDL_GetError() << std::endl;
+        std::cerr << "IMG_Load failed: " << IMG_GetError() << std::endl;
     }
     return surface;
 }

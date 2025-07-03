@@ -11,7 +11,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
-find_package(SDL2 REQUIRED)
+find_package(PkgConfig REQUIRED)
+
+# Find SDL2 using pkg-config for better compatibility
+pkg_check_modules(SDL2 REQUIRED sdl2)
+pkg_check_modules(SDL2_IMAGE REQUIRED SDL2_image)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -48,7 +52,11 @@ else()
 endif()
 
 target_link_libraries(untitled PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(untitled PRIVATE SDL2::SDL2)
+
+# Link SDL2 and SDL2_image using pkg-config variables
+target_include_directories(untitled PRIVATE ${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
+target_link_libraries(untitled PRIVATE ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
+target_compile_options(untitled PRIVATE ${SDL2_CFLAGS_OTHER} ${SDL2_IMAGE_CFLAGS_OTHER})
 
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

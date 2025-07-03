@@ -28,6 +28,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen"/>
+    <addaction name="actionConvert_Image"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -35,6 +36,11 @@
   <action name="actionOpen">
    <property name="text">
     <string>Open</string>
+   </property>
+  </action>
+  <action name="actionConvert_Image">
+   <property name="text">
+    <string>Convert Image</string>
    </property>
   </action>
  </widget>
