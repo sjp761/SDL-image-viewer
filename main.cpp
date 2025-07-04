@@ -3,24 +3,19 @@
 #include <QApplication>
 #include <SDL2/SDL.h>
 #include <iostream>
+#include "SDLContainer.h"
 #include <SDL2/SDL_image.h>
 
 int main(int argc, char *argv[])
 {
     setenv("QT_QPA_PLATFORM", "xcb", 1);
     setenv("SDL_VIDEODRIVER", "x11", 1);
-    if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
-    {
-        std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
-        return 1;
-    }
-    if (!(IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) & (IMG_INIT_PNG | IMG_INIT_JPG))) {
-        std::cerr << "SDL_image could not initialize! IMG_Error: " << IMG_GetError() << std::endl;
-        SDL_Quit();
-        return 1;
-    }
     QApplication a(argc, argv);
+    SDLContainer::initSDL(); //Initialize after starting application but before creating the main window - helps with adding widget after creating main window
+    SDL_PumpEvents();
+    SDLContainer::createNativeWindow();
     MainWindow w;
+    w.addSDLWidget();
     w.show();
     return a.exec();
 }
