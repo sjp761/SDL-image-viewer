@@ -17,6 +17,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void openFile();
+    QTimer* renderTimer;
     void convertImage();
     Ui::MainWindow *getUi() const { return ui; }
     void addSDLWidget();

@@ -115,7 +115,6 @@ void SDLContainer::render()
     if (!renderer) {
         return;
     }
-    
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);    
     SDL_RenderPresent(renderer);

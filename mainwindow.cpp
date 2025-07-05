@@ -27,17 +27,25 @@ MainWindow::~MainWindow()
 
 void MainWindow::openFile()
 {
-    
+    if (renderTimer && renderTimer->isActive()) //Function call won't execute if renderTimer = nullptr
+    {
+        renderTimer->stop(); // Stop the render timer if it's running
+    }
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), "", tr("Images (*.png *.xpm *.jpg *.bmp)"));
     if (!fileName.isEmpty()) {
         SDLContainer::loadImage(fileName.toStdString());
         MainWindow::setWindowTitle(fileName); // Set the window title to the file name
+    }
+    if (!renderTimer->isActive()) 
+    {
+        renderTimer->start(16); // Restart the render timer if it was stopped
     }
 }
 
 
 void MainWindow::convertImage()
 {
+    
     QString fileName = QFileDialog::getSaveFileName(
         this,
         tr("Convert"),
@@ -45,19 +53,23 @@ void MainWindow::convertImage()
         tr("BMP (*.bmp);;JPEG (*.jpg *.jpeg);;PNG (*.png)")
     );
     if (!fileName.isEmpty()) {
-        QFileInfo fileInfo(fileName);
-        QString extension = fileInfo.suffix().toLower();
-        if (extension == "bmp") {
-            SDL_SaveBMP(SDLContainer::surface, fileName.toStdString().c_str());
-            std::cout << "Converting to BMP format" << std::endl;
-        } else if (extension == "jpg" || extension == "jpeg") {
-            IMG_SaveJPG(SDLContainer::surface, fileName.toStdString().c_str(), 100);
-            std::cout << "Converting to JPEG format" << std::endl;
-        } else if (extension == "png") {
-            IMG_SavePNG(SDLContainer::surface, fileName.toStdString().c_str());
-            std::cout << "Converting to PNG format" << std::endl;
+            QFileInfo fileInfo(fileName);
+            QString extension = fileInfo.suffix().toLower();
+            if (extension == "bmp") 
+            {
+                SDL_SaveBMP(SDLContainer::surface, fileName.toStdString().c_str());
+                std::cout << "Converting to BMP format" << std::endl;
+            } 
+            else if (extension == "jpg" || extension == "jpeg") {
+                IMG_SaveJPG(SDLContainer::surface, fileName.toStdString().c_str(), 100);
+                std::cout << "Converting to JPEG format" << std::endl;
+            } 
+            else if (extension == "png") {
+                IMG_SavePNG(SDLContainer::surface, fileName.toStdString().c_str());
+                std::cout << "Converting to PNG format" << std::endl;
+            }
         }
-        }
+    
 }
 
 void MainWindow::addSDLWidget()
@@ -67,7 +79,7 @@ void MainWindow::addSDLWidget()
         printf("SDL widget added to layout successfully\n");
         
         // Start a timer to continuously render SDL content - program does not work without this
-        QTimer* renderTimer = new QTimer(this);
+        renderTimer = new QTimer(this);
         connect(renderTimer, &QTimer::timeout, []() {
             SDLContainer::render();
         });
