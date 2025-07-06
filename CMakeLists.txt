@@ -26,6 +26,8 @@ set(PROJECT_SOURCES
         mainwindow.ui
         SDLContainer.cpp
         SDLContainer.h
+        SDLWidget.cpp
+        SDLWidget.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

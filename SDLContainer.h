@@ -16,5 +16,6 @@ class SDLContainer
         static void initSDL();
         static void createNativeWindow();
         static void loadImage(const std::string &fileName);
+        static void resize(int width, int height);
 
 };

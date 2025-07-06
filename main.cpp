@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-
+#include "SDLWidget.h"
 #include <QApplication>
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -15,7 +15,6 @@ int main(int argc, char *argv[])
     SDL_PumpEvents();
     SDLContainer::createNativeWindow();
     MainWindow w;
-    w.addSDLWidget();
     w.show();
     return a.exec();
 }

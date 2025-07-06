@@ -20,7 +20,6 @@ public:
     QTimer* renderTimer;
     void convertImage();
     Ui::MainWindow *getUi() const { return ui; }
-    void addSDLWidget();
 
 private:
     Ui::MainWindow *ui;

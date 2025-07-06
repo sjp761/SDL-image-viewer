@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "SDLContainer.h"
+#include "SDLWidget.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QWindow>
@@ -15,7 +16,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    centralWidget()->setLayout(new QVBoxLayout);
     connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::openFile);
     connect(ui->actionConvert_Image, &QAction::triggered, this, &MainWindow::convertImage);
 }
@@ -27,18 +27,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::openFile()
 {
-    if (renderTimer && renderTimer->isActive()) //Function call won't execute if renderTimer = nullptr
-    {
-        renderTimer->stop(); // Stop the render timer if it's running
-    }
+    
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), "", tr("Images (*.png *.xpm *.jpg *.bmp)"));
     if (!fileName.isEmpty()) {
         SDLContainer::loadImage(fileName.toStdString());
         MainWindow::setWindowTitle(fileName); // Set the window title to the file name
-    }
-    if (!renderTimer->isActive()) 
-    {
-        renderTimer->start(16); // Restart the render timer if it was stopped
+        SDLContainer::render();
     }
 }
 
@@ -70,22 +64,4 @@ void MainWindow::convertImage()
             }
         }
     
-}
-
-void MainWindow::addSDLWidget()
-{
-    if (SDLContainer::embedded) {
-        centralWidget()->layout()->addWidget(QWidget::createWindowContainer(SDLContainer::embedded, this));
-        printf("SDL widget added to layout successfully\n");
-        
-        // Start a timer to continuously render SDL content - program does not work without this
-        renderTimer = new QTimer(this);
-        connect(renderTimer, &QTimer::timeout, []() {
-            SDLContainer::render();
-        });
-        renderTimer->start(16); // ~60 FPS
-        
-    } else {
-        printf("Error: Cannot add SDL widget - embedded is null\n");
-    }
 }

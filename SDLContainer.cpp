@@ -43,9 +43,7 @@ void SDLContainer::initSDL()
     SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, rand() % 256, rand() % 256, rand() % 256)); //Random color background
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     
-    SDL_RenderClear(renderer); // Clear the renderer with the background color
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
-    SDL_RenderPresent(renderer); // Present the renderer to the window
+    render();
 }
 
 void SDLContainer::createNativeWindow()
@@ -115,8 +113,20 @@ void SDLContainer::render()
     if (!renderer) {
         return;
     }
+    std::cout << "Rendering SDL content" << std::endl;
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);    
     SDL_RenderPresent(renderer);
 }
+
+void SDLContainer::resize(int width, int height)
+{
+    if (!window) {
+        printf("Error: SDL window is null\n");
+        return;
+    }
+    
+    SDL_SetWindowSize(window, width, height);
+}
+    
 
