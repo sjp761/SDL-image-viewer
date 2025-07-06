@@ -51,15 +51,15 @@ void MainWindow::convertImage()
             QString extension = fileInfo.suffix().toLower();
             if (extension == "bmp") 
             {
-                SDL_SaveBMP(SDLContainer::surface, fileName.toStdString().c_str());
+                SDL_SaveBMP(SDLContainer::surface.get(), fileName.toStdString().c_str());
                 std::cout << "Converting to BMP format" << std::endl;
             } 
             else if (extension == "jpg" || extension == "jpeg") {
-                IMG_SaveJPG(SDLContainer::surface, fileName.toStdString().c_str(), 100);
+                IMG_SaveJPG(SDLContainer::surface.get(), fileName.toStdString().c_str(), 100);
                 std::cout << "Converting to JPEG format" << std::endl;
             } 
             else if (extension == "png") {
-                IMG_SavePNG(SDLContainer::surface, fileName.toStdString().c_str());
+                IMG_SavePNG(SDLContainer::surface.get(), fileName.toStdString().c_str());
                 std::cout << "Converting to PNG format" << std::endl;
             }
         }

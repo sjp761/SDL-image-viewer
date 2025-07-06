@@ -6,10 +6,13 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_syswm.h>
 
+using SDLTexturePtr = std::unique_ptr<SDL_Texture, decltype(&SDLTextureDeleter)>;
+using SDLSurfacePtr = std::unique_ptr<SDL_Surface, decltype(&SDLSurfaceDeleter)>;
+
 SDL_Renderer* SDLContainer::renderer = nullptr;
 SDL_Window* SDLContainer::window = nullptr;
-SDL_Texture* SDLContainer::texture = nullptr;
-SDL_Surface* SDLContainer::surface = nullptr;
+SDLTexturePtr SDLContainer::texture(nullptr, SDLTextureDeleter);
+SDLSurfacePtr SDLContainer::surface(nullptr, SDLSurfaceDeleter);
 QWindow* SDLContainer::embedded = nullptr;
 
 void SDLContainer::initSDL()
@@ -39,9 +42,9 @@ void SDLContainer::initSDL()
         printf("Unable to create SDL renderer: %s\n", SDL_GetError());
         return;
     }
-    surface = SDL_CreateRGBSurface(0, 640, 480, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, rand() % 256, rand() % 256, rand() % 256)); //Random color background
-    texture = SDL_CreateTextureFromSurface(renderer, surface);
+    surface.reset(SDL_CreateRGBSurface(0, 640, 480, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
+    SDL_FillRect(surface.get(), NULL, SDL_MapRGB(surface->format, rand() % 256, rand() % 256, rand() % 256)); //Random color background
+    texture.reset(SDL_CreateTextureFromSurface(renderer, surface.get()));
     
     render();
 }
@@ -78,30 +81,12 @@ void SDLContainer::createNativeWindow()
 
 void SDLContainer::loadImage(const std::string &fileName)
 {
-    // Clean up previous texture if it exists
-    if (texture) {
-        SDL_DestroyTexture(texture);
-        texture = nullptr;
-    }
-    
-    // Clean up previous surface if it exists
-    if (surface) {
-        SDL_FreeSurface(surface);
-        surface = nullptr;
-    }
+ 
     
     // Load new image
-    SDL_Surface* loadedSurface = IMG_Load(fileName.c_str());
-    if (!loadedSurface) {
-        printf("Unable to load image %s! SDL_image Error: %s\n", fileName.c_str(), IMG_GetError());
-        return;
-    }
-    
-    // Store the surface for potential conversion operations - don't free texture and surface here
-    surface = loadedSurface;
-    
+    surface.reset(IMG_Load(fileName.c_str())); 
     // Create texture from surface
-    texture = SDL_CreateTextureFromSurface(renderer, surface);
+    texture.reset(SDL_CreateTextureFromSurface(renderer, surface.get()));
     if (!texture) {
         printf("Unable to create texture from %s! SDL Error: %s\n", fileName.c_str(), SDL_GetError());
         return;
@@ -115,7 +100,7 @@ void SDLContainer::render()
     }
     std::cout << "Rendering SDL content" << std::endl;
     SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);    
+    SDL_RenderCopy(renderer, texture.get(), NULL, NULL);    
     SDL_RenderPresent(renderer);
 }
 
