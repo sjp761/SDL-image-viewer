@@ -17,9 +17,17 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void openFile();
-    QTimer* renderTimer;
+    QMenu* menuRecent;
     void convertImage();
     Ui::MainWindow *getUi() const { return ui; }
+    void updateRecentFileMenu();
+    std::set<std::string> recentFiles;
+    void fillRecentSet();
+    void saveRecentSet();
+
+
+public slots:
+    void handleRecentFileAction(QAction* action);
 
 private:
     Ui::MainWindow *ui;

@@ -15,6 +15,8 @@ int main(int argc, char *argv[])
     SDL_PumpEvents();
     SDLContainer::createNativeWindow();
     MainWindow w;
+    w.fillRecentSet(); // Fill the recent files set from the file
+    w.updateRecentFileMenu();
     w.show();
     return a.exec();
 }

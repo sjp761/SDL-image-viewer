@@ -8,6 +8,7 @@
 #include <QLayout>
 #include <QTimer>
 #include <iostream>
+#include <fstream>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL.h>
 
@@ -15,7 +16,10 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    menuRecent = new QMenu(tr("Recent Files"), this);
     ui->setupUi(this);
+    ui->menuFile->addMenu(menuRecent);
+    connect(menuRecent, &QMenu::triggered, this, &MainWindow::handleRecentFileAction); // Anytime an action is triggered in the recent files menu (click one of the recent files), call handleRecentFileAction
     connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::openFile);
     connect(ui->actionConvert_Image, &QAction::triggered, this, &MainWindow::convertImage);
 }
@@ -23,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+    saveRecentSet(); // Save recent files before closing
 }
 
 void MainWindow::openFile()
@@ -32,7 +37,11 @@ void MainWindow::openFile()
     if (!fileName.isEmpty()) {
         SDLContainer::loadImage(fileName.toStdString());
         MainWindow::setWindowTitle(fileName); // Set the window title to the file name
+        recentFiles.insert(fileName.toStdString());
+        updateRecentFileMenu();
         SDLContainer::render();
+        // Add the file to the recent files list
+        
     }
 }
 
@@ -64,4 +73,40 @@ void MainWindow::convertImage()
             }
         }
     
+}
+
+void MainWindow::updateRecentFileMenu()
+{
+    menuRecent->clear(); // Clear the existing actions in the menu
+    for (const std::string &file : recentFiles) 
+    {
+        QAction *action = new QAction(QString::fromStdString(file), this);
+        action->setData(QString::fromStdString(file));
+        menuRecent->addAction(action);
+    }
+}
+
+void MainWindow::fillRecentSet()
+{
+    std::ifstream file("recent_files.txt");
+    std::string line;
+    while (std::getline(file, line)) {
+        recentFiles.insert(line);
+    }
+}
+
+void MainWindow::saveRecentSet()
+{
+    std::ofstream file("recent_files.txt");
+    for (const auto &string : recentFiles) {
+        file << string << std::endl;
+    }
+}
+
+void MainWindow::handleRecentFileAction(QAction *action)
+{
+    std::cout << "Recent file action triggered: " << action->data().toString().toStdString() << std::endl;
+    SDLContainer::loadImage(action->data().toString().toStdString());
+    MainWindow::setWindowTitle(action->data().toString()); // Set the window title to the file name
+    SDLContainer::render();
 }
