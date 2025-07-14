@@ -5,14 +5,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_syswm.h>
+#include "SDL_SmartPointer.h"
 
-using SDLTexturePtr = std::unique_ptr<SDL_Texture, decltype(&SDLTextureDeleter)>;
-using SDLSurfacePtr = std::unique_ptr<SDL_Surface, decltype(&SDLSurfaceDeleter)>;
-
+SDL_SmartPointer<SDL_Texture> SDLContainer::texture(nullptr);
+SDL_SmartPointer<SDL_Surface> SDLContainer::surface(nullptr);
 SDL_Renderer* SDLContainer::renderer = nullptr;
 SDL_Window* SDLContainer::window = nullptr;
-SDLTexturePtr SDLContainer::texture(nullptr, SDLTextureDeleter);
-SDLSurfacePtr SDLContainer::surface(nullptr, SDLSurfaceDeleter);
 QWindow* SDLContainer::embedded = nullptr;
 
 void SDLContainer::initSDL()
@@ -42,10 +40,10 @@ void SDLContainer::initSDL()
         printf("Unable to create SDL renderer: %s\n", SDL_GetError());
         return;
     }
-    surface.reset(SDL_CreateRGBSurface(0, 640, 480, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
-    SDL_FillRect(surface.get(), NULL, SDL_MapRGB(surface->format, rand() % 256, rand() % 256, rand() % 256)); //Random color background
-    texture.reset(SDL_CreateTextureFromSurface(renderer, surface.get()));
-    
+    surface.ptr.reset(SDL_CreateRGBSurface(0, 640, 480, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
+    SDL_FillRect(surface.ptr.get(), NULL, SDL_MapRGB(surface.ptr->format, rand() % 256, rand() % 256, rand() % 256)); //Random color background
+    texture.ptr.reset(SDL_CreateTextureFromSurface(renderer, surface.ptr.get()));
+
     render();
 }
 
@@ -84,10 +82,10 @@ void SDLContainer::loadImage(const std::string &fileName)
  
     
     // Load new image
-    surface.reset(IMG_Load(fileName.c_str())); 
+    surface.ptr.reset(IMG_Load(fileName.c_str()));
     // Create texture from surface
-    texture.reset(SDL_CreateTextureFromSurface(renderer, surface.get()));
-    if (!texture) {
+    texture.ptr.reset(SDL_CreateTextureFromSurface(renderer, surface.ptr.get()));
+    if (!texture.ptr.get()) {
         printf("Unable to create texture from %s! SDL Error: %s\n", fileName.c_str(), SDL_GetError());
         return;
     }
@@ -100,7 +98,7 @@ void SDLContainer::render()
     }
     std::cout << "Rendering SDL content" << std::endl;
     SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture.get(), NULL, NULL);    
+    SDL_RenderCopy(renderer, texture.ptr.get(), NULL, NULL);
     SDL_RenderPresent(renderer);
 }
 
