@@ -7,6 +7,20 @@
 #include <SDL2/SDL_syswm.h>
 #include "SDL_SmartPointer.h"
 
+namespace {
+    constexpr int DEFAULT_WINDOW_WIDTH = 800;
+    constexpr int DEFAULT_WINDOW_HEIGHT = 600;
+    constexpr int DEFAULT_SURFACE_WIDTH = 640;
+    constexpr int DEFAULT_SURFACE_HEIGHT = 480;
+    constexpr int SURFACE_DEPTH = 32;
+    constexpr Uint32 RED_MASK = 0x00FF0000;
+    constexpr Uint32 GREEN_MASK = 0x0000FF00;
+    constexpr Uint32 BLUE_MASK = 0x000000FF;
+    constexpr Uint32 ALPHA_MASK = 0xFF000000;
+    constexpr int COLOR_MAX_VALUE = 256;
+    constexpr int RENDERER_INDEX = -1;
+}
+
 SDL_SmartPointer<SDL_Texture> SDLContainer::texture(nullptr);
 SDL_SmartPointer<SDL_Surface> SDLContainer::surface(nullptr);
 SDL_Renderer* SDLContainer::renderer = nullptr;
@@ -28,20 +42,20 @@ void SDLContainer::initSDL()
     window = SDL_CreateWindow("SDL Window",
                               SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED,
-                              800, 600,
+                              DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT,
                               SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS | SDL_WINDOW_SHOWN);
     if (!window) {
         printf("Unable to create SDL window: %s\n", SDL_GetError());
         return;
     }
     
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer(window, RENDERER_INDEX, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         printf("Unable to create SDL renderer: %s\n", SDL_GetError());
         return;
     }
-    surface.ptr.reset(SDL_CreateRGBSurface(0, 640, 480, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
-    SDL_FillRect(surface.ptr.get(), NULL, SDL_MapRGB(surface.ptr->format, rand() % 256, rand() % 256, rand() % 256)); //Random color background
+    surface.ptr.reset(SDL_CreateRGBSurface(0, DEFAULT_SURFACE_WIDTH, DEFAULT_SURFACE_HEIGHT, SURFACE_DEPTH, RED_MASK, GREEN_MASK, BLUE_MASK, ALPHA_MASK));
+    SDL_FillRect(surface.ptr.get(), NULL, SDL_MapRGB(surface.ptr->format, rand() % COLOR_MAX_VALUE, rand() % COLOR_MAX_VALUE, rand() % COLOR_MAX_VALUE)); //Random color background
     texture.ptr.reset(SDL_CreateTextureFromSurface(renderer, surface.ptr.get()));
 
     render();
@@ -111,5 +125,5 @@ void SDLContainer::resize(int width, int height)
     
     SDL_SetWindowSize(window, width, height);
 }
-    
+
 
