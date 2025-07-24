@@ -54,9 +54,9 @@ void SDLContainer::initSDL()
         printf("Unable to create SDL renderer: %s\n", SDL_GetError());
         return;
     }
-    surface.ptr.reset(SDL_CreateRGBSurface(0, DEFAULT_SURFACE_WIDTH, DEFAULT_SURFACE_HEIGHT, SURFACE_DEPTH, RED_MASK, GREEN_MASK, BLUE_MASK, ALPHA_MASK));
-    SDL_FillRect(surface.ptr.get(), NULL, SDL_MapRGB(surface.ptr->format, rand() % COLOR_MAX_VALUE, rand() % COLOR_MAX_VALUE, rand() % COLOR_MAX_VALUE)); //Random color background
-    texture.ptr.reset(SDL_CreateTextureFromSurface(renderer, surface.ptr.get()));
+    surface.reset(SDL_CreateRGBSurface(0, DEFAULT_SURFACE_WIDTH, DEFAULT_SURFACE_HEIGHT, SURFACE_DEPTH, RED_MASK, GREEN_MASK, BLUE_MASK, ALPHA_MASK));
+    SDL_FillRect(surface.get(), NULL, SDL_MapRGB(surface->format, rand() % COLOR_MAX_VALUE, rand() % COLOR_MAX_VALUE, rand() % COLOR_MAX_VALUE)); //Random color background
+    texture.reset(SDL_CreateTextureFromSurface(renderer, surface.get()));
 
     render();
 }
@@ -96,10 +96,10 @@ void SDLContainer::loadImage(const std::string &fileName)
  
     
     // Load new image
-    surface.ptr.reset(IMG_Load(fileName.c_str()));
+    surface.reset(IMG_Load(fileName.c_str()));
     // Create texture from surface
-    texture.ptr.reset(SDL_CreateTextureFromSurface(renderer, surface.ptr.get()));
-    if (!texture.ptr.get()) {
+    texture.reset(SDL_CreateTextureFromSurface(renderer, surface.get()));
+    if (!texture.get()) {
         printf("Unable to create texture from %s! SDL Error: %s\n", fileName.c_str(), SDL_GetError());
         return;
     }
@@ -112,7 +112,7 @@ void SDLContainer::render()
     }
     std::cout << "Rendering SDL content" << std::endl;
     SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture.ptr.get(), NULL, NULL);
+    SDL_RenderCopy(renderer, texture.get(), NULL, NULL);
     SDL_RenderPresent(renderer);
 }
 
